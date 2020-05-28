@@ -1,0 +1,9 @@
+version: "3"
+services:
+  airwavetech:
+    build: ./
+    image: atmohsin/hello-world
+    ports:
+      - "4999:4999"
+    environment:
+      - NIVEUS_NODE_PORT=4999

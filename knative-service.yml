@@ -1,0 +1,27 @@
+apiVersion: serving.knative.dev/v1 # Current version of Knative
+kind: Service
+metadata:
+  name: atmohsin-helloworld # The name of the app
+  namespace: niveus-deploy # The namespace the app will use
+spec:
+  template:
+    spec:
+      containers:
+        - image: atmohsin/hello-world:knative_0.1 # The URL to the image of the app
+          ports:
+          - containerPort: 4998 # Port to route to
+          livenessProbe:
+            httpGet:
+              path: /
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            failureThreshold: 3
+            timeoutSeconds: 60
+          env:
+            - name: NIVEUS_NODE_PORT # The environment variable printed out by the sample app
+              value: "4998"

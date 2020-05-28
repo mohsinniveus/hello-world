@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: niveus-helloworld-svc
+  namespace: niveus-deploy
+  labels:
+    app: niveus-helloworld
+spec:
+  ports:
+  - name: http
+    port: 4999
+    targetPort: 4998
+  selector:
+    app: niveus-helloworld
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: niveus-hello-world-deployment
+  namespace: niveus-deploy
+  labels:
+    app: niveus-helloworld
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: niveus-helloworld
+  template:
+    metadata:
+      labels:
+        app: niveus-helloworld
+      annotations:
+        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+    spec:
+      containers:
+      - name: hello-world
+        image: atmohsin/hello-world:latest
+        env:
+        - name: "NIVEUS_NODE_PORT"
+          valueFrom:
+            configMapKeyRef:
+              name: hello-world-configmap
+              key: NIVEUS_NODE_PORT
+        ports:
+        - containerPort: 4998
+          name: liveness-port
+        livenessProbe:
+          httpGet:
+            path: /
+            port: liveness-port
+          initialDelaySeconds: 3
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: liveness-port
+          initialDelaySeconds: 3
+          periodSeconds: 5
